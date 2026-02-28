@@ -3,27 +3,26 @@
   hosts: all
   become: true
   gather_facts: false
-
-  pre_tasks:
-    - name: Wait for system to be ready
-      raw: test -e /var/lib/dpkg/lock-frontend || true
-      retries: 10
-      delay: 5
-
   tasks:
+    - name: Wait for system to be ready
+      wait_for_connection:
+        timeout: 60
+
     - name: Install nginx
       apt:
         name: nginx
         state: present
         update_cache: yes
 
-    - name: Copy index.html
+    - name: Deploy index.html
       copy:
         src: ../html/index.html
         dest: /var/www/html/index.html
+        owner: www-data
+        group: www-data
         mode: '0644'
 
-    - name: Ensure nginx is started and enabled
+    - name: Start and enable nginx
       service:
         name: nginx
         state: started
