@@ -61,7 +61,7 @@ jobs:
           curl -f http://${{ needs.provision.outputs.server_ip }} || exit 1
 
   notify:
-    needs: [provision, verify]
+    needs: verify
     runs-on: ubuntu-latest
     steps:
       - name: Done
