@@ -4,7 +4,7 @@ terraform {
   }
   backend "s3" {
     bucket = "devops-agent-tfstate"
-    key    = "new-test/terraform.tfstate"
+    key    = "Live/terraform.tfstate"
     region = "us-east-1"
   }
 }
@@ -12,7 +12,7 @@ terraform {
 provider "aws" { region = var.aws_region }
 
 variable "aws_region"   { default = "us-east-1" }
-variable "project_name" { default = "new-test" }
+variable "project_name" { default = "Live" }
 variable "public_key"   { type = string }
 
 data "aws_vpc" "default" {
@@ -36,7 +36,7 @@ data "aws_ami" "ubuntu" {
 }
 
 resource "aws_key_pair" "deployer" {
-  key_name   = "${var.project_name}-key"
+  key_name   = "Live-key"
   public_key = var.public_key
   lifecycle {
     ignore_changes = [public_key]
@@ -44,8 +44,9 @@ resource "aws_key_pair" "deployer" {
 }
 
 resource "aws_security_group" "sg" {
-  name   = "${var.project_name}-sg"
+  name   = "Live-sg"
   vpc_id = data.aws_vpc.default.id
+
   ingress {
     from_port   = 22
     to_port     = 22
@@ -64,9 +65,12 @@ resource "aws_security_group" "sg" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
+
   lifecycle {
     create_before_destroy = true
+    ignore_changes        = [name]
   }
+
   tags = {
     Project   = var.project_name
     ManagedBy = "devops-agent"
@@ -80,6 +84,11 @@ resource "aws_instance" "server" {
   vpc_security_group_ids      = [aws_security_group.sg.id]
   subnet_id                   = data.aws_subnets.default.ids[0]
   associate_public_ip_address = true
+
+  lifecycle {
+    ignore_changes = [ami]
+  }
+
   tags = {
     Name      = var.project_name
     Project   = var.project_name
