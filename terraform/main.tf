@@ -36,7 +36,7 @@ data "aws_ami" "ubuntu" {
 }
 
 resource "aws_key_pair" "deployer" {
-  key_name   = "Live-key"
+  key_name   = "${var.project_name}-key"
   public_key = var.public_key
   lifecycle {
     ignore_changes = [public_key]
@@ -44,9 +44,8 @@ resource "aws_key_pair" "deployer" {
 }
 
 resource "aws_security_group" "sg" {
-  name   = "Live-sg"
+  name   = "${var.project_name}-sg"
   vpc_id = data.aws_vpc.default.id
-
   ingress {
     from_port   = 22
     to_port     = 22
@@ -65,12 +64,10 @@ resource "aws_security_group" "sg" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
-
   lifecycle {
     create_before_destroy = true
-    ignore_changes        = [name]
+    ignore_changes        = [name, description]
   }
-
   tags = {
     Project   = var.project_name
     ManagedBy = "devops-agent"
@@ -84,11 +81,6 @@ resource "aws_instance" "server" {
   vpc_security_group_ids      = [aws_security_group.sg.id]
   subnet_id                   = data.aws_subnets.default.ids[0]
   associate_public_ip_address = true
-
-  lifecycle {
-    ignore_changes = [ami]
-  }
-
   tags = {
     Name      = var.project_name
     Project   = var.project_name
