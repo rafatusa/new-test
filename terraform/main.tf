@@ -78,6 +78,7 @@ resource "aws_instance" "server" {
   instance_type               = "t3.micro"
   key_name                    = aws_key_pair.deployer.key_name
   vpc_security_group_ids      = [aws_security_group.sg.id]
+  subnet_id                   = data.aws_subnets.default.ids[0]
   associate_public_ip_address = true
   tags = {
     Name      = var.project_name
