@@ -4,7 +4,7 @@ terraform {
   }
   backend "s3" {
     bucket = "devops-agent-tfstate"
-    key    = "Live/terraform.tfstate"
+    key    = "new-test/terraform.tfstate"
     region = "us-east-1"
   }
 }
@@ -12,7 +12,7 @@ terraform {
 provider "aws" { region = var.aws_region }
 
 variable "aws_region"   { default = "us-east-1" }
-variable "project_name" { default = "Live" }
+variable "project_name" { default = "new-test" }
 variable "public_key"   { type = string }
 
 data "aws_vpc" "default" {
@@ -66,7 +66,7 @@ resource "aws_security_group" "sg" {
   }
   lifecycle {
     create_before_destroy = true
-    ignore_changes        = [name, description]
+    ignore_changes        = [name]
   }
   tags = {
     Project   = var.project_name
