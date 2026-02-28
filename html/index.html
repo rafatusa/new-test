@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>new-test | DevOps Agent</title>
+  <title>Live - Deployed by DevOps Agent</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: 'Segoe UI', sans-serif;
       background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
@@ -17,11 +17,16 @@
     }
     .container {
       text-align: center;
-      padding: 3rem 2rem;
+      padding: 3rem;
+      background: rgba(255,255,255,0.05);
+      border-radius: 20px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
       max-width: 700px;
+      width: 90%;
     }
     h1 { font-size: 3rem; margin-bottom: 0.5rem; }
-    .subtitle { font-size: 1.2rem; color: #aaa; margin-bottom: 2rem; }
+    .subtitle { color: #aaa; margin-bottom: 2rem; font-size: 1.1rem; }
     .cards {
       display: flex;
       flex-wrap: wrap;
@@ -31,61 +36,61 @@
     }
     .card {
       background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.15);
       border-radius: 12px;
-      padding: 1.2rem 1.5rem;
+      padding: 1rem 1.5rem;
       min-width: 130px;
     }
-    .icon { font-size: 2rem; margin-bottom: 0.4rem; }
-    .label { font-size: 0.75rem; color: #aaa; text-transform: uppercase; letter-spacing: 1px; }
-    .value { font-size: 1.1rem; font-weight: bold; margin-top: 0.3rem; color: #7ee8a2; }
+    .icon { font-size: 1.8rem; margin-bottom: 0.3rem; }
+    .label { font-size: 0.75rem; color: #aaa; text-transform: uppercase; }
+    .value { font-size: 1rem; font-weight: bold; color: #7efff5; }
     .btn {
       display: inline-block;
-      padding: 0.9rem 2.5rem;
-      background: linear-gradient(135deg, #7ee8a2, #80ff72);
-      color: #111;
-      border-radius: 50px;
+      padding: 0.8rem 2rem;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: #fff;
+      border-radius: 30px;
+      text-decoration: none;
       font-weight: bold;
       font-size: 1rem;
-      text-decoration: none;
       margin-bottom: 2rem;
       transition: transform 0.2s;
     }
     .btn:hover { transform: scale(1.05); }
-    .footer { font-size: 0.85rem; color: #666; }
-    .footer a { color: #7ee8a2; text-decoration: none; }
+    .footer { color: #666; font-size: 0.85rem; }
+    .footer a { color: #aaa; text-decoration: none; }
+    .footer a:hover { color: #fff; }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>🚀 new-test</h1>
-    <p class="subtitle">Deployed successfully via DevOps Agent</p>
+    <h1>&#x1F680; Live</h1>
+    <p class="subtitle">Successfully deployed by DevOps Agent</p>
     <div class="cards">
       <div class="card">
-        <div class="icon">✅</div>
+        <div class="icon">&#x2705;</div>
         <div class="label">Status</div>
         <div class="value">Live</div>
       </div>
       <div class="card">
-        <div class="icon">☁️</div>
+        <div class="icon">&#x2601;&#xFE0F;</div>
         <div class="label">Cloud</div>
         <div class="value">AWS</div>
       </div>
       <div class="card">
-        <div class="icon">🌍</div>
+        <div class="icon">&#x1F30D;</div>
         <div class="label">Region</div>
         <div class="value">us-east-1</div>
       </div>
       <div class="card">
-        <div class="icon">🔧</div>
+        <div class="icon">&#x1F527;</div>
         <div class="label">Server</div>
         <div class="value">nginx</div>
       </div>
     </div>
-    <a class="btn" href="#">🚀 Get Started</a>
+    <a class="btn" href="#">&#x1F680; Get Started</a>
     <div class="footer">
       Deployed via <a href="https://github.com/rafatusa/new-test">rafatusa/new-test</a>
-      &nbsp;·&nbsp; DevOps Agent
+      &nbsp;&middot;&nbsp; DevOps Agent
     </div>
   </div>
 </body>
