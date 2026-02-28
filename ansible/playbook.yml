@@ -1,23 +1,26 @@
 ---
-- name: Configure nginx server
+- name: Configure nginx
   hosts: all
   become: true
-  tasks:
-    - name: Update apt cache
-      apt:
-        update_cache: yes
+  gather_facts: false
 
+  pre_tasks:
+    - name: Wait for system to be ready
+      raw: test -e /var/lib/dpkg/lock-frontend || true
+      retries: 10
+      delay: 5
+
+  tasks:
     - name: Install nginx
       apt:
         name: nginx
         state: present
+        update_cache: yes
 
     - name: Copy index.html
       copy:
         src: ../html/index.html
         dest: /var/www/html/index.html
-        owner: www-data
-        group: www-data
         mode: '0644'
 
     - name: Ensure nginx is started and enabled
