@@ -1,0 +1,35 @@
+---
+- name: Configure nginx
+  hosts: all
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Wait for system to be ready
+      wait_for_connection:
+        timeout: 60
+
+    - name: Install nginx
+      apt:
+        name: nginx
+        state: present
+        update_cache: yes
+
+    - name: Deploy index.html
+      copy:
+        dest: /var/www/html/index.html
+        content: |
+          <!DOCTYPE html>
+          <html>
+          <head><title>new-test</title></head>
+          <body>
+            <h1>Welcome to new-test</h1>
+            <p>Deployed by DevOps Agent using Terraform + Ansible on AWS.</p>
+          </body>
+          </html>
+        mode: '0644'
+
+    - name: Ensure nginx is running
+      service:
+        name: nginx
+        state: started
+        enabled: yes
