@@ -1,0 +1,68 @@
+name: Deploy
+on:
+  workflow_dispatch:
+concurrency:
+  group: deploy-${{ github.repository }}
+  cancel-in-progress: false
+jobs:
+  provision:
+    runs-on: ubuntu-latest
+    outputs:
+      server_ip: ${{ steps.ip.outputs.ip }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      - uses: hashicorp/setup-terraform@v3
+      - name: Write SSH key
+        run: echo "${{ secrets.SSH_PRIVATE_KEY }}" > /tmp/ssh_key && chmod 600 /tmp/ssh_key
+      - name: Create S3 bucket for state
+        run: aws s3 mb s3://devops-agent-tfstate --region ${{ secrets.AWS_REGION }} 2>/dev/null || true
+      - name: Terraform Init
+        run: terraform init
+        working-directory: terraform
+      - name: Terraform Apply
+        run: terraform apply -auto-approve -var="public_key=${{ secrets.SSH_PUBLIC_KEY }}"
+        working-directory: terraform
+      - id: ip
+        name: Get IP
+        run: echo "ip=$(terraform output -raw public_ip)" >> $GITHUB_OUTPUT
+        working-directory: terraform
+
+  configure:
+    needs: provision
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Write SSH key
+        run: echo "${{ secrets.SSH_PRIVATE_KEY }}" > /tmp/ssh_key && chmod 600 /tmp/ssh_key
+      - name: Install Ansible
+        run: pip install ansible
+      - name: Wait for SSH
+        run: |
+          for i in $(seq 1 30); do
+            ssh -o StrictHostKeyChecking=no -o ConnectTimeout=5 -i /tmp/ssh_key ubuntu@${{ needs.provision.outputs.server_ip }} echo ok && break || sleep 10
+          done
+      - name: Run Ansible
+        run: |
+          ansible-playbook -i "${{ needs.provision.outputs.server_ip }}," \
+            --private-key /tmp/ssh_key -u ubuntu ansible/playbook.yml
+
+  verify:
+    needs: [provision, configure]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Health Check
+        run: |
+          sleep 10
+          curl -f http://${{ needs.provision.outputs.server_ip }} || exit 1
+
+  notify:
+    needs: [provision, verify]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Done
+        run: echo "Live at http://${{ needs.provision.outputs.server_ip }}"
