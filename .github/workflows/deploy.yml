@@ -24,6 +24,19 @@ jobs:
       - name: Terraform Init
         run: terraform init
         working-directory: terraform
+      - name: Import existing key pair if needed
+        working-directory: terraform
+        run: |
+          if aws ec2 describe-key-pairs --key-names "Live-key" --region ${{ secrets.AWS_REGION }} 2>/dev/null; then
+            terraform import -var="public_key=${{ secrets.SSH_PUBLIC_KEY }}" aws_key_pair.deployer Live-key 2>/dev/null || true
+          fi
+      - name: Import existing security group if needed
+        working-directory: terraform
+        run: |
+          SG_ID=$(aws ec2 describe-security-groups --filters "Name=group-name,Values=Live-sg" --region ${{ secrets.AWS_REGION }} --query "SecurityGroups[0].GroupId" --output text 2>/dev/null || echo "")
+          if [ -n "$SG_ID" ] && [ "$SG_ID" != "None" ] && [ "$SG_ID" != "null" ]; then
+            terraform import -var="public_key=${{ secrets.SSH_PUBLIC_KEY }}" aws_security_group.sg $SG_ID 2>/dev/null || true
+          fi
       - name: Terraform Apply
         run: terraform apply -auto-approve -var="public_key=${{ secrets.SSH_PUBLIC_KEY }}"
         working-directory: terraform
@@ -61,7 +74,7 @@ jobs:
           curl -f http://${{ needs.provision.outputs.server_ip }} || exit 1
 
   notify:
-    needs: [provision, verify]
+    needs: verify
     runs-on: ubuntu-latest
     steps:
       - name: Done
